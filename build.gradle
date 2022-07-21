@@ -1,0 +1,145 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version "$shadow_version"
+}
+
+apply plugin: 'kotlinx-serialization'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://snapshots.elastic.co/maven/"
+    }
+    maven {
+        url "https://mvn.topobyte.de"
+    }
+    maven {
+        url 'https://mvn.slimjars.com'
+    }}
+
+dependencies {
+    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+    implementation("com.github.ajalt.clikt:clikt:$clikt_version")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:$kotlin_csv_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json")
+
+    implementation "io.github.microutils:kotlin-logging:$kotlin_logging_version"
+
+    implementation "org.jetbrains.exposed:exposed-core:0.38.2"
+    implementation "org.jetbrains.exposed:exposed-jdbc:0.38.2"
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+
+    implementation "co.elastic.clients:elasticsearch-java:$elastic_version"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    implementation "jakarta.json:jakarta.json-api:$jakarta_version"
+    implementation "jakarta.json.bind:jakarta.json.bind-api:3.0.0"
+    implementation "org.eclipse:yasson:2.0.4"
+
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-server-cors:$ktor_version"
+    implementation "io.ktor:ktor-server-content-negotiation:$ktor_version"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
+    implementation "ch.qos.logback:logback-classic:$logback_version"
+
+    implementation "org.openstreetmap.pbf:osmpbf:$osmpbf_version"
+
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+    implementation "de.topobyte:osm4j-core:$osm4j_version"
+    implementation "de.topobyte:osm4j-geometry:$osm4j_version"
+
+    implementation "io.maryk.rocksdb:rocksdb-multiplatform:$rocksdb_version"
+
+    testImplementation platform("org.junit:junit-bom:$junit_version")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += '-opt-in=kotlin.RequiresOptIn'
+    }
+}
+
+application {
+    mainClass = 'osmpoi.service.MainKt'
+}
+
+task runIndexer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.indexer.IndexerMain"
+}
+
+task runPbfIndexer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the PBF Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.indexer.IndexPbfMain"
+}
+
+task run2PassIndexer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the 2 pass PBF Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.indexer.Pbf2PassIndexerMain"
+}
+
+task runWofDbIndexer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the WOF (Who's on First) SQLite database Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.indexer.WofDbIndexerMain"
+}
+
+task runCountryIndexer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the Country Indexer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.indexer.CountryIndexerMain"
+}
+
+task runPbfSearcher(type: JavaExec) {
+    group = "Execution"
+    description = "Run the PBF searcher"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.pbfsearch.PbfSearchMain"
+}
+
+task runCvsExporter(type: JavaExec) {
+    group = "Execution"
+    description = "Run the Elastic CVS Exporter"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.csvexporter.ExporterMain"
+}
+
+task runComparer(type: JavaExec) {
+    group = "Execution"
+    description = "Run the Elastic Comparer"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.cvscomparer.ComparerMain"
+}
+
+task runPoiExporter(type: JavaExec) {
+    group = "Execution"
+    description = "Run the Elastic POI Exporter"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.elasticexporter.ExporterMain"
+}
+
+task runPlacenameExporter(type: JavaExec) {
+    group = "Execution"
+    description = "Run the ReverseName Placename Exporter"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "osmpoi.placenameexporter.ExporterMain"
+}

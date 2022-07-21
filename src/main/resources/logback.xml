@@ -1,0 +1,32 @@
+<configuration>
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd-HH-mm-ss" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" >
+        <file>logs/osmpoi-${bySecond}.txt</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/osmpoi-%d{yyyy-MM-dd}.txt</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="com.infomatiq.jsi" level="WARN" />
+    <logger name="de.topobyte" level="INFO" />
+    <logger name="io.lettuce.core" level="INFO" />
+    <logger name="reactor.util" level="INFO" />
+    <logger name="Exposed" level="INFO" />
+</configuration>
